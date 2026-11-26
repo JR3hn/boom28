@@ -2,7 +2,7 @@
 // Värden i settings.js, innehåll i data/tour.json.
 import * as THREE from '../vendor/three.js';
 import { SETTINGS } from './settings.js';
-import { clamp, lerp } from './util.js';
+import { clamp, lerp, ease } from './util.js';
 import { buildTimeline, anchors } from './timeline.js';
 import { buildRoadGraph, planRoute, gentleFlight } from './route.js';
 import { drawChart, buildMap } from './chart.js';
@@ -69,12 +69,13 @@ async function init() {
   Object.assign(sun.shadow.camera, { left: -1.5, right: 1.5, top: 1.5, bottom: -1.5, near: 0.5, far: 30 });
   sun.shadow.bias = -0.0005;
   scene.add(sun, sun.target);
+  const SUN_OFFSET = new THREE.Vector3(1.6, 6, 2.2); // solens läge i förhållande till boomerangen
 
   await document.fonts.ready; // sjökortets text ritas med sidans typsnitt
   scene.add(buildMap(map, drawChart(map, { skipLabels: stops.map(s => s.title) }), renderer));
 
   const ringGeo = new THREE.RingGeometry(...SETTINGS.pins.ring, 40).rotateX(-Math.PI / 2);
-  const ringMat = new THREE.MeshBasicMaterial({ color: SETTINGS.colors.magenta, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+  const ringMat = new THREE.MeshBasicMaterial({ color: SETTINGS.colors.accent, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
   for (const s of stops) {
     const ring = new THREE.Mesh(ringGeo, ringMat);
     ring.position.set(s.position[0], LAND + SETTINGS.layers.ring, s.position[1]);
@@ -101,6 +102,37 @@ async function init() {
   const scrollU = () => clamp((scrollY - tourTop()) / vh, 0, tl.total);
   const scrollToU = u => scrollTo({ top: tourTop() + u * vh, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
   const overlay = createOverlay(root, tour, stops, anchors(tl), scrollToU);
+
+  // "Hoppa till info" spolar snabbt genom turen i stället för att hoppa blint, så man ser att den finns.
+  // Egen animation, för webbläsarens 'smooth' är seg och oförutsägbar över så lång sträcka.
+  // Snäppet stängs av under tiden, annars drar snäpp-punkterna i scrollen. Reducerad rörelse: vanligt hopp.
+  // Kurvan: tiden förvrids först (1 − (1−t)^glide) och mjukas sedan i båda ändar med ease, så starten är
+  // mjuk, toppfarten kommer tidigt och resten är en lång inbromsning. Det ger "glid", inte "kast".
+  let jumping = false; // läses av snurret i frame()
+  root.querySelector('.tour__jump')?.addEventListener('click', e => {
+    const target = document.getElementById('info');
+    if (!target || reducedMotion.matches) return;
+    e.preventDefault();
+    const from = scrollY, to = target.getBoundingClientRect().top + scrollY;
+    const t0 = performance.now(), html = document.documentElement;
+    let alive = true;
+    const stop = () => { alive = jumping = false; html.style.scrollSnapType = ''; };
+    const stopEvents = ['wheel', 'touchstart', 'keydown'];
+    const cancel = () => { stop(); stopEvents.forEach(n => removeEventListener(n, cancel)); };
+    stopEvents.forEach(n => addEventListener(n, cancel, { passive: true }));
+    html.style.scrollSnapType = 'none';
+    history.pushState(null, '', '#info');
+    jumping = true;
+    const { jumpTime, jumpGlide } = SETTINGS.intro;
+    (function step(now) {
+      if (!alive) return;
+      const t = clamp((now - t0) / (jumpTime * 1000), 0, 1);
+      scrollTo(0, lerp(from, to, ease(1 - (1 - t) ** jumpGlide)));
+      if (t < 1) return requestAnimationFrame(step);
+      cancel();
+      target.focus({ preventScroll: true }); // som ett vanligt ankarhopp: tangentbordet fortsätter härifrån
+    })(t0);
+  });
 
   function resize() {
     if (innerWidth !== vw || Math.abs(innerHeight - vh) > 120) { // ignorera mobilens adressfält
@@ -148,7 +180,7 @@ async function init() {
     if (dt > 0) speed += (lastBoom.distanceTo(pose.boom) / dt - speed) * (1 - Math.exp(-dt * 10));
     lastBoom.copy(pose.boom);
     const boost = lerp(1, S.legBoost, pose.legBlend);
-    const target = reduce ? 0 : Math.min(S.max, (2 * Math.PI * speed * boost) / (pose.scale * boomerang.length * S.lengthsPerRev));
+    const target = reduce ? 0 : Math.min(jumping ? SETTINGS.intro.jumpSpin : S.max, (2 * Math.PI * speed * boost) / (pose.scale * boomerang.length * S.lengthsPerRev));
     spinSpeed += (target - spinSpeed) * (1 - Math.exp(-dt * S.response));
     if (spinSpeed < 0.01 && !target) spinSpeed = 0;
     angle += spinSpeed * dt;
@@ -159,19 +191,26 @@ async function init() {
     boomerang.pivot.scale.setScalar(pose.scale * (reduce ? 1 : Math.min(1, 0.85 + time * 0.6))); // liten entré när sidan laddat
     boomerang.tilt.rotation.set(pose.tilt, 0, pose.bank);
     boomerang.spin.rotation.y = -angle;
-    sun.position.copy(pose.boom).add(new THREE.Vector3(1.6, 6, 2.2));
+    sun.position.copy(pose.boom).add(SUN_OFFSET);
     sun.target.position.copy(pose.boom);
 
     const doneLeg = seg.type === 'hold' ? seg.stop : seg.type === 'flight' ? seg.to - 1 : seg.type === 'hero' ? -1 : Infinity;
     trail.reveal(doneLeg, pose.leg, pose.legS, seg.type !== 'hero');
     clouds.update(pose.cloudsOpen, camera);
 
-    // kartan (pinnar, lista) tonas in under slutet av dyket och ut på väg tillbaka
-    let mapVisible = floating ? 0 : seg.type === 'flight' && seg.from < 0 ? clamp((t - 0.55) / 0.2) : seg.type === 'return' ? clamp(1 - t / 0.3) : 1;
+    let mapVisible = mapVisibility(seg, t);
     if (reduce) mapVisible *= reduced.overlayIn; // pinnarna tonas in med den nya stillbilden
     overlay.update({ camera, seg, t, u, dt, reduce, W: stage.clientWidth, H: stage.clientHeight, mapVisible });
 
     renderer.render(scene, camera);
+  }
+
+  // Kartan (pinnar, lista) tonas in under slutet av dyket och ut på väg tillbaka
+  function mapVisibility(seg, t) {
+    if (seg.type === 'hero' || seg.type === 'end') return 0;
+    if (seg.type === 'flight' && seg.from < 0) return clamp((t - 0.55) / 0.2);
+    if (seg.type === 'return') return clamp(1 - t / 0.3);
+    return 1;
   }
 
   function followScroll(goal, dt) {
@@ -184,7 +223,7 @@ async function init() {
     return spring.x;
   }
 
-  // Fjädern hålls i fas med scrollen, så det inte blir ett ryck om reducerad rörelse slås av
+  // Håll fjädern i fas med scrollen, annars rycker det till om reducerad rörelse slås av
   function reducedU(goal, dt) {
     spring.x = goal; spring.v = 0;
     return reduced.frameU(goal, dt, renderShown);

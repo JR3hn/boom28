@@ -8,10 +8,16 @@ const LAND = SETTINGS.layers.land;
 export function createOverlay(root, tour, stops, anchorList, scrollToU) {
   const overlay = root.querySelector('.tour__overlay');
   const hint = root.querySelector('.tour__hint');
+  const jump = root.querySelector('.tour__jump');
   const outro = root.querySelector('.tour__outro');
   const rail = root.querySelector('.tour__rail ol');
   const track = root.querySelector('.tour__track');
-  const html = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; };
+  const html = (tag, cls, text) => {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    return el;
+  };
 
   // intro och outro
   if (hint) hint.textContent = tour.intro?.hint ?? '';
@@ -120,7 +126,12 @@ export function createOverlay(root, tour, stops, anchorList, scrollToU) {
       });
 
       railButtons.forEach(r => r.b.classList.toggle('is-current', seg.type === 'hold' && seg.stop === r.stop));
-      if (hint) hint.style.opacity = clamp(1 - u / 0.35);
+      const intro = clamp(1 - u / SETTINGS.intro.fadeBy);
+      if (hint) hint.style.opacity = intro;
+      if (jump) { // genvägen tonas med hinten och går inte att träffa när den är borta
+        jump.style.opacity = intro;
+        jump.style.visibility = intro > 0 ? 'visible' : 'hidden';
+      }
       if (outro) {
         const o = seg.type === 'end' ? 1 : seg.type === 'return' ? clamp((t - 0.78) / 0.22) : 0;
         outro.style.opacity = o;

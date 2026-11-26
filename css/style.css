@@ -1,71 +1,11 @@
-/* Sjökortsstil, färger som på svenska sjökort: gult land, blått grunt vatten,
-   vitt djupt vatten, svart kust, magenta för det som lagts till (kurs, pinnar). */
+/* Startsidans 3D-tur. Typsnitt och färger: css/base.css. Sidhuvud, meny och sidfot: css/site.css. */
 
-@font-face {
-  font-family: "Literata";
-  src: url("../fonts/literata-latin-opsz-normal.woff2") format("woff2");
-  font-weight: 200 900; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: "Literata";
-  src: url("../fonts/literata-latin-opsz-italic.woff2") format("woff2");
-  font-weight: 200 900; font-style: italic; font-display: swap;
-}
-@font-face {
-  font-family: "Hanken Grotesk";
-  src: url("../fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900; font-style: normal; font-display: swap;
-}
-
-:root {
-  --sea: #F3F6F4;
-  --shoal: #C9E3EE;
-  --land: #F2DC8A;
-  --ink: #14202B;
-  --ink-soft: #43525E;
-  --magenta: #B0287D;
-  --contour: #7FA3B8;
-
-  --serif: "Literata", Georgia, serif;
-  --sans: "Hanken Grotesk", system-ui, sans-serif;
-
-  --ease-out: cubic-bezier(.2, .8, .2, 1);
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-snap-type: y proximity; -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  background: var(--sea);
-  color: var(--ink);
-  font: 400 1rem/1.55 var(--sans);
-  -webkit-font-smoothing: antialiased;
-}
-
-.skip {
-  position: absolute; left: 1rem; top: -4rem; z-index: 20;
-  background: var(--ink); color: #fff; padding: .6rem 1rem; border-radius: .5rem;
-}
-.skip:focus { top: 1rem; }
-
-:focus-visible { outline: 2px solid var(--magenta); outline-offset: 3px; border-radius: 4px; }
-
-/* ---------- Sidhuvud ---------- */
-.site-header {
-  position: fixed; inset: 0 0 auto 0; z-index: 10;
-  padding: max(1.25rem, env(safe-area-inset-top)) 1.5rem 1rem;
-  pointer-events: none;
-}
-.wordmark {
-  pointer-events: auto;
-  color: var(--ink); text-decoration: none;
-  font: 500 .95rem/1 var(--sans);
-  letter-spacing: .62em;           /* samma glesa spärrning som i logotypen */
-}
+html { scroll-snap-type: y proximity; }
 
 /* ---------- Turen ---------- */
 .tour { position: relative; }
 .tour__stage {
+  --jump-bottom: max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem)); /* genvägen ligger fritt från OSM-krediten */
   position: sticky; top: 0;
   height: 100vh; height: 100lvh;
   overflow: hidden;
@@ -81,9 +21,28 @@ body {
 
 .tour__overlay { position: absolute; inset: 0; pointer-events: none; }
 
-/* Intro-hint */
+/* Genväg förbi turen, under hinten. Ligger ovanför OSM-krediten. Tonas bort med hinten (overlay.js). */
+.tour__jump {
+  position: absolute; left: 50%; bottom: var(--jump-bottom);
+  transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: .45rem;
+  min-height: 44px; padding: 0 1.1rem;
+  border-radius: 999px;
+  font: 600 .875rem/1 var(--sans); letter-spacing: .01em;
+  color: var(--ink); text-decoration: none; white-space: nowrap;
+  background: rgba(250, 252, 251, .62);
+  -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, .7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 8px 20px -12px rgba(20, 32, 43, .4);
+  z-index: 3;
+}
+.tour__jump svg { width: .8rem; height: .8rem; }
+.tour__jump:hover { background: rgba(250, 252, 251, .85); }
+.tour__jump:active { transform: translateX(-50%) scale(.97); transition: transform .1s ease-out; }
+
+/* Intro-hint (ovanför genvägen) */
 .tour__hint {
-  position: absolute; left: 50%; bottom: max(2.5rem, env(safe-area-inset-bottom));
+  position: absolute; left: 50%; bottom: calc(var(--jump-bottom) + 44px + 1rem);
   transform: translateX(-50%);
   margin: 0;
   font: italic 400 1.05rem/1.2 var(--serif);
@@ -98,20 +57,20 @@ body {
 }
 @keyframes hint { 0% { transform: scaleY(0); } 60%, 100% { transform: scaleY(1); opacity: 0; } }
 
-/* Pinnar: magenta ring med svart kant och tunn linje ner till marken */
+/* Pinnar: mörk ring med svart kant och tunn linje ner till marken */
 .pin-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .pin-lines line { stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; opacity: 0; }
 .pin {
   position: absolute; left: 0; top: 0;
   width: 18px; height: 18px; border-radius: 50%;
   background: var(--sea);
-  border: 4px solid var(--magenta);
+  border: 4px solid var(--accent);
   box-shadow: 0 0 0 1.5px var(--ink), 0 2px 6px rgba(20, 32, 43, .25);
   opacity: 0;
   will-change: transform, opacity;
   transition: background-color .2s ease;
 }
-.pin.is-active { background: var(--magenta); }
+.pin.is-active { background: var(--accent); }
 
 /* Etikett vid pinne (när kortet är stängt) */
 .pin-label {
@@ -165,19 +124,19 @@ body {
   margin: 0 0 .9rem;
   font: 400 .8125rem/1.3 var(--sans);
   letter-spacing: .01em;
-  color: var(--magenta);
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 .card__text { margin: .6rem 0 1.1rem; color: var(--ink); max-width: 34ch; }
 .card__link, .button {
   display: inline-flex; align-items: center; gap: .5rem;
   font: 600 .9375rem/1 var(--sans);
-  color: var(--magenta); text-decoration: none;
+  color: var(--accent); text-decoration: none;
   padding: .7rem 1rem; margin-left: -1rem;
   border-radius: 999px;
   transition: background-color .15s ease, transform .1s ease;
 }
-.card__link:hover, .button:hover { background: rgba(176, 40, 125, .08); }
+.card__link:hover, .button:hover { background: var(--accent-tint); }
 .card__link:active, .button:active { transform: scale(.97); }
 
 /* ---------- Outro ---------- */
@@ -207,7 +166,7 @@ body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 10px 24px -14px rgba(20,32,43,.35); display: grid; gap: .25rem; position: relative; }
 .tour__rail ol::before { /* kurslinjen mellan prickarna */
   content: ""; position: absolute; right: 1.25rem; top: 1.5rem; bottom: 1.5rem;
-  border-right: 1.5px dashed rgba(176, 40, 125, .45);
+  border-right: 1.5px dashed var(--accent-line);
 }
 .tour__rail button {
   display: flex; align-items: center; flex-direction: row-reverse; gap: .7rem;
@@ -217,24 +176,13 @@ body {
 }
 .rail__dot {
   width: .6rem; height: .6rem; border-radius: 50%;
-  border: 1.5px solid var(--magenta); background: var(--sea);
+  border: 1.5px solid var(--accent); background: var(--sea);
   margin-right: .2rem; position: relative;
   transition: transform .25s var(--ease-out), background-color .2s ease;
 }
 .tour__rail button:hover { color: var(--ink); }
 .tour__rail button.is-current { color: var(--ink); }
-.tour__rail button.is-current .rail__dot { background: var(--magenta); transform: scale(1.35); }
-
-/* ---------- Sidfot ---------- */
-.site-footer__small { font-size: .8125rem; }
-.site-footer a { color: var(--ink); }
-.site-footer {
-  position: relative; z-index: 2;
-  padding: 4rem 1.5rem 5rem;
-  max-width: 40rem; margin: 0 auto;
-  color: var(--ink-soft);
-  scroll-snap-align: start;
-}
+.tour__rail button.is-current .rail__dot { background: var(--accent); transform: scale(1.35); }
 
 /* ---------- Mobil ---------- */
 @media (max-width: 640px) {
@@ -245,7 +193,7 @@ body {
   .card__text { max-width: none; }
   .tour__outro { top: 62%; }
   .tour__credit { font-size: .6875rem; }
-  .tour__hint { bottom: 3.5rem; }
+  .tour__stage { --jump-bottom: max(3.6rem, calc(env(safe-area-inset-bottom) + 2.4rem)); } /* krediten är två rader här */
 }
 
 /* ---------- Redigeringsläge ---------- */
@@ -267,15 +215,15 @@ body {
 }
 .tune__title { margin: 0 0 .5rem; font: italic 500 1.1rem/1.2 var(--serif); }
 .tune__row { display: grid; grid-template-columns: 1fr auto; gap: .2rem .5rem; margin-bottom: .55rem; }
-.tune__row input { grid-column: 1 / -1; width: 100%; accent-color: var(--magenta); }
-.tune__row output { font-variant-numeric: tabular-nums; color: var(--magenta); }
+.tune__row input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.tune__row output { font-variant-numeric: tabular-nums; color: var(--accent); }
 .tune__copy { font: 600 .8125rem/1 var(--sans); border: 0; border-radius: 999px; padding: .6rem .9rem; background: var(--ink); color: #fff; cursor: pointer; }
 
 /* ---------- Fallback utan WebGL/JS ---------- */
 .tour.is-static .tour__stage { position: relative; height: auto; padding: 6rem 1.25rem 2rem; }
 .tour.is-static .tour__overlay { position: static; display: grid; gap: 1rem; max-width: 36rem; margin: 0 auto; }
 .tour.is-static .card { position: static; opacity: 1; visibility: visible; transform: none !important; }
-.tour.is-static .tour__track, .tour.is-static .tour__hint, .tour.is-static .tour__rail, .tour.is-static .pin-label { display: none; }
+.tour.is-static .tour__track, .tour.is-static .tour__hint, .tour.is-static .tour__jump, .tour.is-static .tour__rail, .tour.is-static .pin-label { display: none; }
 
 /* ---------- Tillgänglighet ---------- */
 /* Reducerad rörelse: se css/reduced-motion.css */

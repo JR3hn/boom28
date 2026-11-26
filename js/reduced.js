@@ -2,9 +2,9 @@
 //
 //   startsida → inflygning → stopp 1 → flygning → stopp 2 → … → tillbaka → slut
 //
-// Varje segment i tidslinjen får en fast position (u). Kameran står alltid still.
-// Byten sker med en övertoning (crossfade.js), inte med rörelse. Det är skonsamt för
-// den som blir illamående av rörelse, men berättelsen finns kvar.
+// Varje segment i tidslinjen får en fast position (u) och kameran står alltid still.
+// Bilderna byts med en övertoning (crossfade.js). Skonsamt för den som mår illa av
+// rörelse, men berättelsen finns kvar.
 // Värden: SETTINGS.reduced.
 import { SETTINGS } from './settings.js';
 import { locate } from './timeline.js';
@@ -42,10 +42,8 @@ export function createReduced(tl, crossfade) {
   });
 
   return {
-    /**
-     * goal = scrollens u. Ger det u som ska visas.
-     * render() ritar den bild som syns nu. Den behövs för att fånga den gamla bilden vid bytet.
-     */
+    // goal = scrollens u. Ger det u som ska visas.
+    // render() ritar bilden som syns nu, så den gamla bilden kan fångas vid bytet.
     frameU(goal, dt, render) {
       const want = target(goal);
       if (shown === null) shown = want;
@@ -62,7 +60,7 @@ export function createReduced(tl, crossfade) {
       return shown;
     },
 
-    /** 0..1: pinnar och linjer tonas in i takt med den nya bilden (de finns inte i den gamla bildkopian) */
+    // 0..1: pinnar och linjer tonas in i takt med den nya bilden (de finns inte i den gamla bildkopian)
     get overlayIn() { return crossfade.progress; },
   };
 }

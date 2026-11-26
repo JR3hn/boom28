@@ -1,0 +1,62 @@
+/* Grunden för alla sidor: typsnitt, färger och nollställning.
+   Sjökortsstil, färger som på svenska sjökort: gult land, blått grunt vatten,
+   vitt djupt vatten, svart kust, mörkt bläck (--accent) för det som lagts till (kurs, pinnar). */
+
+@font-face {
+  font-family: "Literata";
+  src: url("../fonts/literata-latin-opsz-normal.woff2") format("woff2");
+  font-weight: 200 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("../fonts/literata-latin-opsz-italic.woff2") format("woff2");
+  font-weight: 200 900; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("../fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+
+:root {
+  --sea: #F3F6F4;
+  --shoal: #C9E3EE;
+  --land: #F2DC8A;
+  --ink: #14202B;
+  --ink-soft: #43525E;
+  /* Accent: sätts av js/site.js från SETTINGS.colors.accent. Värdet här gäller bara tills JS har körts. */
+  --accent: #14202B;
+  --accent-hover: color-mix(in srgb, var(--accent) 85%, #fff);
+  --accent-line: color-mix(in srgb, var(--accent) 45%, transparent);  /* streckade kurslinjer */
+  --accent-ring: color-mix(in srgb, var(--accent) 15%, transparent);  /* fokusring i formulär */
+  --accent-tint: color-mix(in srgb, var(--accent) 8%, transparent);   /* hover-bakgrund */
+  --contour: #7FA3B8;
+
+  --serif: "Literata", Georgia, serif;
+  --sans: "Hanken Grotesk", system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--sea);
+  color: var(--ink);
+  font: 400 1rem/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.skip {
+  position: absolute; left: 1rem; top: -4rem; z-index: 50;
+  background: var(--ink); color: #fff; padding: .6rem 1rem; border-radius: .5rem;
+}
+.skip:focus { top: 1rem; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

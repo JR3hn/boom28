@@ -5,7 +5,7 @@ import * as THREE from '../vendor/three.js';
 
 const PATH_COST = 1.25; // stigar "kostar" lite mer än vägar, så rutten föredrar vägar
 
-/** Bygger en graf av alla vägar: map.roads = [{ type: 'road' | 'path', points: [[x, z], …] }] */
+// Bygger en graf av alla vägar: map.roads = [{ type: 'road' | 'path', points: [[x, z], …] }]
 export function buildRoadGraph(roads = []) {
   const nodes = [];
   const index = new Map();
@@ -57,7 +57,7 @@ function shortestPath(nodes, from, to) {
   return path;
 }
 
-/** Rutt från a till b ([x, z]) längs vägarna. `via` = egna mellanpunkter. Utan vägar: en mjuk båge. */
+// Rutt från a till b ([x, z]) längs vägarna. `via` = egna mellanpunkter. Utan vägar: en mjuk båge.
 export function planRoute(graph, a, b, via) {
   const A = new THREE.Vector3(a[0], 0, a[1]), B = new THREE.Vector3(b[0], 0, b[1]);
   let pts;
@@ -78,7 +78,7 @@ export function planRoute(graph, a, b, via) {
   return new THREE.CatmullRomCurve3(pts, false, 'centripetal');
 }
 
-/** Nästan rak flyglinje: bow = 0 → helt rak, 1 → böjer sig ut till vägens mittpunkt. */
+// Nästan rak flyglinje: bow = 0 → helt rak, 1 → böjer sig ut till vägens mittpunkt.
 export function gentleFlight(route, y, bow) {
   const A = route.getPointAt(0), B = route.getPointAt(1);
   const mid = A.clone().lerp(B, 0.5);

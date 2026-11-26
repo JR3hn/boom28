@@ -9,8 +9,6 @@ const EXTENT = 28;   // hur stor yta sjökortet täcker (enheter)
 const PX = 4096;     // sjökortets upplösning
 const C = SETTINGS.colors, M = SETTINGS.map, LAYER = SETTINGS.layers;
 
-export const CHART_EXTENT = EXTENT;
-
 // ---------------------------------------------------------------- sjökortet (canvas)
 export function drawChart(map, { skipLabels = [] } = {}) {
   const serif = 'Literata', sans = 'Hanken Grotesk';
@@ -111,7 +109,7 @@ function depthAt(dist) {
   return curve[curve.length - 1][1];
 }
 
-// Söker utåt i en spiral från (u, v) tills test() godkänner en plats. Ger tillbaka testets svar.
+// Letar utåt i en spiral från (u, v) tills test() hittar en ledig plats, och returnerar den
 function spiralSearch(u0, v0, startAngle, test) {
   for (let r = 0; r <= 260; r += 14) {
     const steps = r === 0 ? 1 : Math.max(8, Math.round(r / 6));
@@ -163,7 +161,7 @@ function distanceField(landPath, pxPerUnit) {
 function drawCompass(ctx, cx, cy, r, font) {
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.strokeStyle = ctx.fillStyle = C.magenta;
+  ctx.strokeStyle = ctx.fillStyle = C.accent;
   ctx.globalAlpha = 0.85;
   ctx.lineWidth = 2.5;
   [1, 0.86].forEach(f => { ctx.beginPath(); ctx.arc(0, 0, r * f, 0, Math.PI * 2); ctx.stroke(); });
@@ -240,7 +238,7 @@ function toShape({ outer, holes = [] }) {
   return shape;
 }
 
-/** Platt band längs en linje [[x, z], …], för vägar */
+// Platt band längs en linje [[x, z], …], för vägar
 function ribbon(points, width, y) {
   const pos = [], idx = [];
   points.forEach(([x, z], i) => {
@@ -256,6 +254,7 @@ function ribbon(points, width, y) {
   return g;
 }
 
+// Slår ihop många små geometrier till en, så de ritas i ett anrop
 function merge(geos) {
   const parts = geos.map(g => (g.index ? g.toNonIndexed() : g));
   const arr = new Float32Array(parts.reduce((n, g) => n + g.attributes.position.array.length, 0));

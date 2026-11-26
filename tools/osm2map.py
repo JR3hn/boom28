@@ -1,7 +1,7 @@
 """Bygger data/vassaro-map.json från en OpenStreetMap-export (map.osm).
 Kartdata © OpenStreetMap-bidragsgivare, ODbL 1.0. Utdata är en härledd databas under ODbL.
 Användning: python3 osm2map.py map.osm ../data/vassaro-map.json"""
-import sys, json, math
+import sys, os, json, math
 import xml.etree.ElementTree as ET
 from shapely.geometry import LineString, Polygon, Point, box
 from shapely.ops import linemerge, polygonize, unary_union
@@ -20,7 +20,7 @@ lats = [p[0] for w in outer for p in w]; lons = [p[1] for w in outer for p in w]
 lat0, lon0 = (min(lats) + max(lats)) / 2, (min(lons) + max(lons)) / 2
 MX = 111320 * math.cos(math.radians(lat0)); MZ = 110540
 height_m = (max(lats) - min(lats)) * MZ
-UNIT = height_m / 10.0                      # ön är 10 enheter hög, som tidigare
+UNIT = height_m / 10.0                      # ön är 10 enheter hög
 def P(lat, lon): return ((lon - lon0) * MX / UNIT, -(lat - lat0) * MZ / UNIT)
 
 # --- Kustlinje → polygoner (alla öar i utdraget)
@@ -72,7 +72,7 @@ for w in r.iter('way'):
         pts = wpts(w)
         if len(pts) > 3: buildings.append([[round(c, 4) for c in P(*p)] for p in pts[:-1]])
 
-# --- Namngivna platser (för att placera stopp med "osm": "Tunet")
+# --- Namngivna platser (för att placera stopp med "place": "Tunet" i tour.json)
 places = {}
 for e in list(r.iter('way')) + list(r.iter('node')):
     n = tags(e).get('name')
@@ -112,9 +112,7 @@ out = {
   'roads': roads,
   'buildings': buildings,
   'places': places,
- 'labels': labels,
+  'labels': labels,
 }
 json.dump(out, open(dst, 'w'), separators=(',', ':'), ensure_ascii=False)
-import os
 print('labels', len(labels), 'roads', len(roads), 'buildings', len(buildings), 'bytes', os.path.getsize(dst))
-for n in ['Tunet', 'Djuphamn', 'Storgårn', 'Vässarö Kapell']: print(n, places.get(n))

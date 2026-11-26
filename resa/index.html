@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ankomst & avresa – Boomerang 2028</title>
+  <meta name="description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">
+  <meta name="theme-color" content="#F3F6F4">
+  <link rel="preload" href="../fonts/literata-latin-opsz-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/site.css">
+  <link rel="stylesheet" href="../css/content.css">
+</head>
+<body class="is-page">
+  <a class="skip" href="#innehall">Hoppa till innehållet</a>
+
+  <!-- Sidhuvud, meny och sidfot fylls av js/site.js från data/site.json. I WordPress: temats template parts. -->
+  <header class="site-header" data-site-header data-site="data/site.json" data-base="../">
+    <a class="wordmark" href="../" aria-label="Boomerang 2028, till startsidan">BOOMERANG 2028</a>
+  </header>
+
+  <main class="page" id="innehall">
+    <header class="page__head">
+      <nav class="page__crumbs" aria-label="Du är här" data-site-crumbs></nav>
+      <h1 class="page__title">Ankomst & avresa</h1>
+      <p class="page__lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </header>
+
+    <!-- Sidans innehåll = WordPress post_content. Bara core-block-markup, så det går att klistra in i Gutenberg. -->
+    <div class="page__content">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <nav class="page__pager" aria-label="Bläddra" data-site-pager></nav>
+  </main>
+
+  <footer class="site-footer" data-site-footer></footer>
+
+  <script type="module" src="../js/site.js"></script>
+</body>
+</html>

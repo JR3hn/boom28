@@ -13,13 +13,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Snäppningen scrollar mjukt av sig själv. Det är rörelse som besökaren inte själv styr. */
+  /* Snäppningen scrollar av sig själv, och det är rörelse besökaren inte styr */
   html { scroll-snap-type: none; }
 
   /* Scroll-hinten: en stilla linje i stället för en som växer i en loop */
   .tour__hint::after { animation: none; }
 
   /* Hint och outro byter läge i ett steg när stillbilden byts. Tona i stället för att poppa. */
-  .tour__hint { transition: opacity .4s ease; }
+  .tour__hint, .tour__jump { transition: opacity .4s ease, visibility .4s; }
+  .tour__jump:active { transform: translateX(-50%); }
   .tour__outro { transition: opacity .45s ease, visibility .45s; }
 }

@@ -19,7 +19,7 @@ export function createCrossfade(glCanvas) {
   }
 
   return {
-    /** render() ritar den GAMLA vyn. Den kopieras direkt, innan webbläsaren hinner tömma WebGL-bufferten. */
+    // render() ritar den GAMLA vyn. Kopiera direkt, innan webbläsaren hinner tömma WebGL-bufferten.
     capture(render) {
       ensureSnap();
       render();
@@ -37,10 +37,10 @@ export function createCrossfade(glCanvas) {
       snap.style.opacity = soft(left / SETTINGS.reduced.fade).toFixed(3);
     },
 
-    /** Avbryt direkt (t.ex. när besökaren slår av reducerad rörelse) */
+    // Avbryt direkt (t.ex. när besökaren slår av reducerad rörelse)
     cancel() { left = 0; if (snap) snap.style.opacity = 0; },
 
-    /** 0 = övertoningen har just börjat, 1 = klar */
+    // 0 = övertoningen har just börjat, 1 = klar
     get progress() { return left > 0 ? clamp(1 - left / SETTINGS.reduced.fade) : 1; },
     get done() { return left <= 0; },
   };

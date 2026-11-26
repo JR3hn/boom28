@@ -42,7 +42,7 @@ export function buildClouds(divePath) {
 
   return {
     group,
-    /** open = 0..1 hur isärglidna molnen är */
+    // open = 0..1 hur isärglidna molnen är
     update(open, camera) {
       for (const c of clouds) {
         c.g.position.copy(c.base).addScaledVector(c.away, ease(open));

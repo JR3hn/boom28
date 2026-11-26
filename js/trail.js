@@ -20,7 +20,7 @@ export function buildTrail(routes) {
 
   const geo = new THREE.PlaneGeometry(S.dash, S.width).rotateX(-Math.PI / 2);
   const layer = (opacity, lift) => {
-    const mat = new THREE.MeshBasicMaterial({ color: SETTINGS.colors.magenta, transparent: true, opacity, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    const mat = new THREE.MeshBasicMaterial({ color: SETTINGS.colors.accent, transparent: true, opacity, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const mesh = new THREE.InstancedMesh(geo, mat, Math.max(1, dashes.length));
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
     dashes.forEach((d, i) => {
@@ -38,7 +38,7 @@ export function buildTrail(routes) {
 
   return {
     meshes: [ahead, drawn],
-    /** Visa spåret fram till: alla sträckor t.o.m. `doneLeg`, plus `s` (0..1) av sträckan `leg` */
+    // Visa spåret fram till: alla sträckor t.o.m. `doneLeg`, plus `s` (0..1) av sträckan `leg`
     reveal(doneLeg, leg, s, showAhead) {
       let n = 0;
       for (const d of dashes) { if (d.leg <= doneLeg || (d.leg === leg && d.f <= s)) n++; else break; }

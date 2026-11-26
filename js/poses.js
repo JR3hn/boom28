@@ -48,26 +48,31 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
     return { ...orbit({ T, D, pitch, yaw }), boom, T, D, pitch, yaw };
   }
 
-  // ------------------------------------------------ inflygningens bana
-  let dive = null, diveFor = null;
-  function divePath() {
-    if (dive && diveFor === isPortrait()) return dive;
-    const [x, z] = stops[0].position, [ax, ay, az] = SETTINGS.flight.diveApproach;
-    const pts = [...SETTINGS.flight.divePath.map(vec), new THREE.Vector3(x + ax, LAND + ay, z + az), stopView(0).boom];
-    diveFor = isPortrait();
-    return (dive = new THREE.CatmullRomCurve3(pts, false, 'centripetal'));
+  // ------------------------------------------------ in- och tillbakaflygningens banor
+  // Banorna slutar och börjar där boomerangen står vid stoppet, och det skiljer sig mellan mobil
+  // och dator. Därför byggs de om när skärmen vänds.
+  function curveFor(points) {
+    let curve = null, portrait = null;
+    return () => {
+      if (!curve || portrait !== isPortrait()) {
+        portrait = isPortrait();
+        curve = new THREE.CatmullRomCurve3(points(), false, 'centripetal');
+      }
+      return curve;
+    };
   }
+  // ovanför en punkt vid stoppet, förskjuten med [öster, höjd, söder]
+  const near = ([x, z], [dx, dy, dz]) => new THREE.Vector3(x + dx, LAND + dy, z + dz);
+  const last = stops.length - 1;
 
-  // ------------------------------------------------ tillbakaflygningens bana
-  // Som dyket baklänges: båge ut från sista stoppet, vidare norrut och upp i himlen
-  let climb = null, climbFor = null;
-  function climbPath() {
-    if (climb && climbFor === isPortrait()) return climb;
-    const last = stops.length - 1, [x, z] = stops[last].position, [ax, ay, az] = SETTINGS.flight.returnDepart;
-    const pts = [stopView(last).boom, new THREE.Vector3(x + ax, LAND + ay, z + az), ...RP.map(vec)];
-    climbFor = isPortrait();
-    return (climb = new THREE.CatmullRomCurve3(pts, false, 'centripetal'));
-  }
+  // dyket: ner från himlen, båge in till första stoppet
+  const divePath = curveFor(() => [
+    ...SETTINGS.flight.divePath.map(vec), near(stops[0].position, SETTINGS.flight.diveApproach), stopView(0).boom,
+  ]);
+  // tillbaka: som dyket baklänges, båge ut från sista stoppet och upp i himlen norrut
+  const climbPath = curveFor(() => [
+    stopView(last).boom, near(stops[last].position, SETTINGS.flight.returnDepart), ...RP.map(vec),
+  ]);
 
   // ------------------------------------------------ drönarkameran
   // Bakom boomerangen vid s (0..1) längs kurvan. `side` = sidan kameran börjar på (+1/−1).
@@ -92,7 +97,7 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
   // ------------------------------------------------ pose för en scroll-position u
   const pose = { pos: new THREE.Vector3(), look: new THREE.Vector3(), boom: new THREE.Vector3(), scale: 1, tilt: 0, bank: 0, cloudsOpen: 0, leg: -1, legS: 0, legBlend: 0 };
   const set = v => { pose.pos.copy(v.pos); pose.look.copy(v.look); pose.boom.copy(v.boom); };
-  // eCam styr kameran, eBoom boomerangen. Då kan kameran zooma långsammare utan att boomerangen flyttar sig senare.
+  // Kameran (eCam) och boomerangen (eBoom) blandas var för sig, så kameran kan ta det lugnt utan att boomerangen släpar efter.
   const blend = (v, eCam, eBoom = eCam) => { pose.pos.lerp(v.pos, eCam); pose.look.lerp(v.look, eCam); pose.boom.lerp(v.boom, eBoom); };
   // Kamerans övergång i början / slutet av ett segment: längd i skärmhöjder, högst halva segmentet
   const zoomOut = (seg, t, len = CAM.zoom.out) => ease(clamp(t / Math.min(0.5, len / seg.len)));

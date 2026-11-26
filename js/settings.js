@@ -69,10 +69,9 @@ export const SETTINGS = {
     // Samma sak under tillbakaflygningen upp mot himlen
     climb:       { back: 1.7,  up: 0.5,  ahead: 1.2, sway: 0.55, bob: 0.1 },
     bank: 0.35,         // max lutning i kurvor (radianer)
-    // Hur långsamt kameran zoomar ut från / in till ett stopp, i skärmhöjder scroll.
-    // Gäller bara kameran: boomerangen lyfter och landar vid samma tidpunkt oavsett.
-    // Högre = mjukare zoom. Tas aldrig mer än halva sträckan.
-    // skyOut/skyIn = samma sak när boomerangen lämnar himlen (startsidan) och kommer tillbaka dit på slutet.
+    // Hur lång tid (i skärmhöjder) kameran tar på sig att zooma ut från och in till ett stopp.
+    // Högre = mjukare. Aldrig mer än halva sträckan. Boomerangen bryr sig inte, den lyfter i tid ändå.
+    // skyOut/skyIn: samma sak när den lämnar himlen i början och kommer tillbaka dit på slutet.
     zoom: { out: 0.65, in: 0.65, skyOut: 1.1, skyIn: 1.0 },
   },
 
@@ -139,7 +138,7 @@ export const SETTINGS = {
   // i stället för kamerafärder. Logiken finns i reduced.js och crossfade.js.
   reduced: {
     fade: 0.45,          // sekunder, övertoningen mellan två stillbilder
-    settle: 0.12,        // sekunder, scrollen ska vila så här länge innan bilden byts (snabb scroll = en enda övertoning)
+    settle: 0.12,        // sekunder scrollen måste vila innan bilden byts, så en snabb scroll blir en enda övertoning
     flightFrames: true,  // en stillbild för varje flygning (false = bara startsida, stopp och slut)
     // Var i segmentet stillbilden tas (0–1)
     flightAt: 0.5,       // mellan två stopp: boomerangen i luften, spåret halvritat
@@ -147,11 +146,41 @@ export const SETTINGS = {
     returnAt: 0.3,       // tillbakaflygningen: på väg ut från sista stoppet
   },
 
+  // ---------------------------------------------------------------- INTRO
+  intro: {
+    fadeBy: 0.35,        // hint och "Hoppa till info" är borta när turen kommit så här långt (0–1)
+    jumpTime: 0.8,       // sekunder "Hoppa till info" tar på sig att spola genom turen (reducerad rörelse: vanligt hopp)
+    jumpGlide: 3,      // 1 = symmetrisk kurva; högre = toppfarten kommer tidigare och inbromsningen blir längre och mjukare
+    jumpSpin: 10,        // tak för snurret (rad/s) under spolningen, så boomerangen inte går bananas av farten
+  },
+
+  // ---------------------------------------------------------------- MENY (alla sidor, js/menu.js)
+  // Fjädrar anges som Apple gör: damping (1 = ingen studs, lägre = studs) och response (sekunder, lägre = snabbare).
+  menu: {
+    sideAt: 720,         // px: från den här fönsterbredden blir menyn en sidopanel, under den ett ark nerifrån
+    open:  { damping: 1.0, response: 0.38 },  // öppna/stäng med knappen
+    flick: { damping: 0.85, response: 0.32 }, // när man släpper arket efter ett drag
+    closeBelow: 0.55,    // arket stängs om det skulle landa mindre öppet än så (farten räknas med)
+    deceleration: 0.998, // hur långt ett snärt kastar arket, som när en scroll bromsar in
+    dragSlop: 6,         // px rörelse innan ett drag räknas (annars är det ett klick)
+    rubber: 0.55,        // motstånd när man drar arket uppåt förbi helt öppet
+    reducedFade: 0.2,    // sekunder, övertoning i stället för glidning vid reducerad rörelse
+  },
+
+  // ---------------------------------------------------------------- SÖK (js/search.js)
+  search: {
+    minChars: 2,         // så många tecken innan sökningen börjar
+    maxResults: 8,
+  },
+
   // ---------------------------------------------------------------- UTSEENDE
-  // Samma färger finns som CSS-variabler i css/style.css. Håll dem lika.
+  // De flesta färgerna finns också som CSS-variabler i css/base.css, så håll dem lika.
+  // Accent är undantaget: ändra den bara här. js/site.js skickar den vidare till CSS (--accent),
+  // och den färgar pinnar, spår, ringar, knappar, länkar, menyn och boomerangen (om tour.json inte säger annat).
   colors: {
     sea: '#F3F6F4', d20: '#E9F2F2', d10: '#DDEDF1', d6: '#C9E3EE', d3: '#AFD5E7',
-    land: '#F2DC8A', ink: '#14202B', contour: '#7FA3B8', magenta: '#B0287D', path: '#B39A62',
+    land: '#F2DC8A', ink: '#14202B', contour: '#7FA3B8', path: '#B39A62',
+    accent: '#2a4c6c',  // accentfärgen för hela sajten, #14202B
     cloud: '#FFFFFF', cloudShade: '#D6E2E7',
   },
 

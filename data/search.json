@@ -1,0 +1,86 @@
+[
+{
+"t": "Anmälan",
+"p": "Anmälan",
+"u": "anmalan/",
+"level": 1
+},
+{
+"t": "Vanliga frågor",
+"p": "Vanliga frågor",
+"u": "faq/",
+"level": 1
+},
+{
+"t": "Funk",
+"p": "Funk",
+"u": "funk/",
+"level": 1
+},
+{
+"t": "Om Boomerang 2028",
+"p": "Om Boomerang 2028",
+"u": "om/",
+"level": 1
+},
+{
+"t": "Lägerbrev",
+"p": "Lägerbrev",
+"u": "om/lagerbrev/",
+"level": 1
+},
+{
+"t": "Trivselregler",
+"p": "Trivselregler",
+"u": "om/trivsel/",
+"level": 1
+},
+{
+"t": "Ankomst & avresa",
+"p": "Ankomst & avresa",
+"u": "resa/",
+"level": 1
+},
+{
+"t": "Skicka post & gods",
+"p": "Skicka post & gods",
+"u": "resa/post-gods/",
+"level": 1
+},
+{
+"t": "Byindelning",
+"p": "Byindelning",
+"u": "under-lagret/byindelning/",
+"level": 1
+},
+{
+"t": "Under lägret",
+"p": "Under lägret",
+"u": "under-lagret/",
+"level": 1
+},
+{
+"t": "Lägerplats",
+"p": "Lägerplats",
+"u": "under-lagret/lagerplats/",
+"level": 1
+},
+{
+"t": "Mat & café",
+"p": "Mat & café",
+"u": "under-lagret/mat/",
+"level": 1
+},
+{
+"t": "Program",
+"p": "Program",
+"u": "under-lagret/program/",
+"level": 1
+},
+{
+"t": "Sjukvård",
+"p": "Sjukvård",
+"u": "under-lagret/sjukvard/",
+"level": 1
+}
+]

@@ -6,6 +6,10 @@ Snurret följer farten (ungefär 1 varv per 5,5 boomeranglängder), så den snur
 
 Bara statiska filer, inget byggsteg. Funkar direkt på GitHub Pages.
 
+## Undersidor och meny
+
+Undersidorna ligger i mappar med samma namn som i WordPress (`anmalan/`, `under-lagret/mat/` …). Meny och sidfot ändras i `data/site.json`. Efter att du ändrat rubriker eller frågor: kör `python3 tools/build-search.py` så att sökningen hittar dem. Flytten till WordPress beskrivs i `wp/README.md`.
+
 ## Kör lokalt
 
 ```bash
@@ -38,7 +42,7 @@ Valfria fält:
 
 | Fält | Betydelse |
 | --- | --- |
-| `coords` | Text i magenta under rubriken |
+| `coords` | Text i accentfärg under rubriken |
 | `link` | `{ "label": "…", "href": "…" }` |
 | `camera` | `{ "distance": 4.2, "pitch": 48, "yaw": 0 }`. Utan den räknas vyn ut från riktningen man kommer in från. |
 | `via` | `[[x, z], …]`, mellanpunkter om rutten ska gå en annan väg än den kortaste |
@@ -58,7 +62,7 @@ Alla värden ligger i `js/settings.js`, grupperade:
 | `trail` | Strecklängd, mellanrum, hur synlig rutten är i förväg |
 | `clouds` | Antal, höjd, placering, storlek, hur långt de glider isär |
 | `map` | Dimma, djupsiffror, djupkurva, textstorlekar, kompass |
-| `colors` | Färger (samma som CSS-variablerna i `css/style.css`) |
+| `colors` | Färger. `colors.accent` är sajtens accentfärg och ändras bara här (skickas till CSS av `js/site.js`). |
 | `layers` | Höjder för platta lager. Ändra bara om något flimrar. |
 
 `?tune` (eller `#tune`) i adressen ger reglage för snurr, drönarkamera och inflygning. "Kopiera inställningar" kopierar värdena så de kan klistras in i `settings.js`.
@@ -70,10 +74,10 @@ Pinnarnas och kortens utseende styrs i `css/style.css` (`.pin`, `.card`).
 Exportera som .glb (Blender: File → Export → glTF 2.0, glTF Binary). Modellen ska ligga platt med ovansidan uppåt. Lägg den i `assets/` och peka på den i `data/tour.json`:
 
 ```json
-"boomerang": { "src": "assets/min.glb", "size": 1.0, "rotation": [0, 0, 0], "style": "symbol", "color": "#B0287D", "outline": 0.018 }
+"boomerang": { "src": "assets/min.glb", "size": 1.0, "rotation": [0, 0, 0], "style": "symbol", "outline": 0.018 }
 ```
 
-- `"style": "symbol"` ger platt magenta med svart kontur. `"original"` behåller modellens egna material.
+- `"style": "symbol"` ger platt accentfärg (bläck) med svart kontur. `"original"` behåller modellens egna material.
 - Modellen skalas och centreras automatiskt. `rotation` (grader) behövs bara om den ligger fel.
 
 ## Karta och OpenStreetMap

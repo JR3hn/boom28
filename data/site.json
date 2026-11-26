@@ -1,0 +1,65 @@
+{
+  "name": "Boomerang 2028",
+  "home": { "label": "Startsida", "href": "./" },
+  "cta": { "label": "Anmälan", "href": "anmalan/" },
+  "info": { "label": "Det viktigaste på en sida", "href": "./#info" },
+  "menu": [
+    {
+      "label": "Om lägret",
+      "href": "om/",
+      "children": [
+        { "label": "Lägerbrev", "href": "om/lagerbrev/" },
+        { "label": "Trivselregler", "href": "om/trivsel/" }
+      ]
+    },
+    { "label": "Anmälan", "href": "anmalan/" },
+    {
+      "label": "Resa",
+      "href": "resa/",
+      "children": [
+        { "label": "Skicka post & gods", "href": "resa/post-gods/" }
+      ]
+    },
+    {
+      "label": "Under lägret",
+      "href": "under-lagret/",
+      "children": [
+        { "label": "Lägerplats", "href": "under-lagret/lagerplats/" },
+        { "label": "Byindelning", "href": "under-lagret/byindelning/" },
+        { "label": "Mat & café", "href": "under-lagret/mat/" },
+        { "label": "Program", "href": "under-lagret/program/" },
+        { "label": "Sjukvård", "href": "under-lagret/sjukvard/" }
+      ]
+    },
+    { "label": "Funk", "href": "funk/" },
+    { "label": "Vanliga frågor", "href": "faq/" }
+  ],
+  "footer": {
+    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "groups": [
+      {
+        "title": "Arrangeras av",
+        "links": [
+          { "label": "Vässarö", "href": "https://vassaro.se/" },
+          { "label": "Stockholms scoutdistrikt", "href": "#" }
+        ]
+      },
+      {
+        "title": "Kontakt",
+        "links": [
+          { "label": "0173-XXX XX", "href": "tel:+46173000000" },
+          { "label": "boomerang2028@exempel.se", "href": "mailto:boomerang2028@exempel.se" }
+        ]
+      },
+      {
+        "title": "Följ oss",
+        "links": [
+          { "label": "Instagram", "href": "#" },
+          { "label": "Facebook", "href": "#" }
+        ]
+      }
+    ],
+    "legal": "Kartan bygger på data från <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> (© OpenStreetMap-bidragsgivare). Kartdatan i <code>data/vassaro-map.json</code> är en härledd databas och tillgänglig under <a href=\"https://opendatacommons.org/licenses/odbl/1-0/\">Open Database License 1.0</a>."
+  },
+  "search": "data/search.json"
+}

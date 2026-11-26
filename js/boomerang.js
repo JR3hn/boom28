@@ -1,5 +1,5 @@
 // Laddar boomerangmodellen (.glb) och ger den sjökortsstilen: platt färg med svart kontur.
-// Hierarki: pivot (position) → tilt (lutning) → spin (snurr) → modell (centrerad och normaliserad)
+// Hierarki: pivot (position) → tilt (lutning) → spin (snurr) → holder (skala) → modell (centrerad)
 import * as THREE from '../vendor/three.js';
 import { SETTINGS } from './settings.js';
 import { DEG } from './util.js';
@@ -33,19 +33,19 @@ export async function loadBoomerang(opts, url) {
   return { pivot, tilt, spin, length: opts.size || 1 };
 }
 
-// Magenta i två toner, svart kontur via inverted hull (större kopia, bara baksidor)
+// Accentfärg i två toner. Konturen är en lite större kopia där bara baksidorna ritas (inverted hull).
 function symbolStyle(model, opts, norm) {
   const steps = new THREE.DataTexture(new Uint8Array([150, 150, 150, 255, 255, 255, 255, 255]), 2, 1);
   steps.minFilter = steps.magFilter = THREE.NearestFilter;
   steps.needsUpdate = true;
-  const fill = new THREE.MeshToonMaterial({ color: opts.color || SETTINGS.colors.magenta, gradientMap: steps });
+  const fill = new THREE.MeshToonMaterial({ color: opts.color || SETTINGS.colors.accent, gradientMap: steps });
   const outline = new THREE.ShaderMaterial({
     uniforms: { width: { value: (opts.outline ?? 0.018) / norm }, color: { value: new THREE.Color(SETTINGS.colors.ink) } },
     vertexShader: 'uniform float width; void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * width, 1.0); }',
     fragmentShader: 'uniform vec3 color; void main(){ gl_FragColor = vec4(color, 1.0); }',
     side: THREE.BackSide,
   });
-  const meshes = [];
+  const meshes = []; // samla först, annars går traverse in i konturerna vi lägger till
   model.traverse(o => o.isMesh && meshes.push(o));
   meshes.forEach(m => { m.material = fill; m.add(new THREE.Mesh(m.geometry, outline)); });
 }

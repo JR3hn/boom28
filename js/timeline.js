@@ -2,7 +2,7 @@
 // Längderna (i skärmhöjder) kommer från SETTINGS.scroll.
 import { SETTINGS } from './settings.js';
 
-/** routeLength(i) = vägens längd till stopp i (för att räkna ut hur mycket scroll sträckan får) */
+// routeLength(i) = vägens längd till stopp i (för att räkna ut hur mycket scroll sträckan får)
 export function buildTimeline(stops, routeLength) {
   const L = SETTINGS.scroll;
   const segs = [];
@@ -20,13 +20,13 @@ export function buildTimeline(stops, routeLength) {
   return { segs, total: t };
 }
 
-/** Var på tidslinjen är vi? Ger segmentet och hur långt in i det (t = 0..1). */
+// Var på tidslinjen är vi? Ger segmentet och hur långt in i det (t = 0..1).
 export function locate(tl, u) {
   for (const seg of tl.segs) if (u < seg.start + seg.len) return { seg, t: Math.max(0, (u - seg.start) / seg.len) };
   return { seg: tl.segs[tl.segs.length - 1], t: 1 };
 }
 
-/** Punkter att snäppa till och hoppa till från platslistan. */
+// Punkter att snäppa till och hoppa till från platslistan.
 export function anchors(tl) {
   return tl.segs
     .filter(s => s.type === 'hold' || s.type === 'hero' || s.type === 'end')
