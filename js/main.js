@@ -12,6 +12,7 @@ import { buildTrail } from './trail.js';
 import { createPoses } from './poses.js';
 import { createOverlay } from './overlay.js';
 import { createCrossfade } from './crossfade.js';
+import { restoreScroll } from './scroll-restore.js';
 import { createReduced } from './reduced.js';
 import { setupEdit, setupTune } from './tools.js';
 
@@ -25,6 +26,7 @@ const LAND = SETTINGS.layers.land;
 init().catch(err => {
   console.error(err);
   root.classList.add('is-static'); // utan WebGL: visa korten som en vanlig lista
+  restoreScroll();
 });
 
 async function init() {
@@ -150,6 +152,7 @@ async function init() {
   }
   resize();
   addEventListener('resize', resize);
+  restoreScroll(); // först nu har spåret sin längd. Måste ske före fjädern nedan, så bilden startar på rätt ställe.
 
   // ---------------------------------------------------------------- loop
   // Kritiskt dämpad fjäder mot scrollen, så bilden inte skjuter förbi.
