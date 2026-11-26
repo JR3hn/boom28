@@ -1,0 +1,38 @@
+# Claude
+CLAUDE.md
+.claude/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows / Linux
+Thumbs.db
+desktop.ini
+*~
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (only used to rebuild vendor/three.js)
+node_modules/
+package.json
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs, env, temp
+*.log
+.env
+.env.*
+*.tmp
+.cache/

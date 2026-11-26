@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Vässarö – scouternas ö</title>
+  <meta name="description" content="Följ boomerangen över Vässarö.">
+  <meta name="theme-color" content="#F3F6F4">
+  <link rel="preload" href="fonts/literata-latin-opsz-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/boomerang.glb" as="fetch" crossorigin>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#efter-turen">Hoppa över turen</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="./" aria-label="Vässarö, till startsidan">VÄSSARÖ</a>
+  </header>
+
+  <!--
+    Själva turen. Allt innehåll kommer från data-tour (JSON).
+    I WordPress: rendera samma markup från ett block/shortcode och sätt data-base till pluginets URL.
+  -->
+  <main class="tour" data-vassaro-tour data-tour="data/tour.json" data-base="./">
+    <div class="tour__stage">
+      <div class="tour__overlay"></div>
+      <p class="tour__hint"></p>
+      <section class="tour__outro" aria-live="polite">
+        <h2></h2>
+        <p></p>
+        <a class="button" href="#"></a>
+      </section>
+      <p class="tour__credit">Kartdata © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-bidragsgivare, tillgänglig under <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>. Djupsiffrorna är illustrativa, inte för navigation.</p>
+      <nav class="tour__rail" aria-label="Platser på ön">
+        <ol></ol>
+      </nav>
+    </div>
+    <div class="tour__track" aria-hidden="true"></div>
+  </main>
+
+  <footer class="site-footer" id="efter-turen">
+    <p>Vässarö tillhör Stockholms Scoutdistrikt. Ön ligger i Öregrunds skärgård, mitt emellan Öregrund och Grisslehamn.</p>
+    <p class="site-footer__small">Kartan bygger på data från <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (© OpenStreetMap-bidragsgivare). Kartdatan i <code>data/vassaro-map.json</code> är en härledd databas och tillgänglig under <a href="https://opendatacommons.org/licenses/odbl/1-0/">Open Database License 1.0</a>.</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
