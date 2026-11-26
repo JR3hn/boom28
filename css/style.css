@@ -17,6 +17,13 @@ html { scroll-snap-type: y proximity; }
 }
 .tour.is-ready .tour__stage canvas { opacity: 1; }
 .tour__track { margin-top: -100vh; margin-top: -100lvh; position: relative; pointer-events: none; }
+
+/* Innan main.js har gett spåret sin längd ligger #info direkt under första skärmen och blinkar förbi.
+   Göm info och sidfot tills turen är klar (eller har fallit tillbaka till en lista). Utan JS syns allt som vanligt. */
+@media (scripting: enabled) {
+  .tour:not(.is-ready, .is-static) ~ .info,
+  .tour:not(.is-ready, .is-static) ~ .site-footer { visibility: hidden; }
+}
 .tour__snap { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; }
 
 .tour__overlay { position: absolute; inset: 0; pointer-events: none; }
