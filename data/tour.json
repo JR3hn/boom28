@@ -17,7 +17,7 @@
   },
   "outro": {
     "title": "Den kommer alltid tillbaka.",
-    "text": "Platshållartext. Här kan sidan sluta med en inbjudan: boka läger, hitta hit eller läs mer om ön.",
+    "text": "Platshållartext. Här kan sidan sluta med en inbjudan: boka läger, hitta hit eller läs mer.",
     "link": {
       "label": "Hitta till Vässarö",
       "href": "#"
@@ -28,7 +28,7 @@
       "id": "tunet",
       "title": "Tunet",
       "place": "Tunet",
-      "text": "Öns mitt, mellan Storgårn, Lillgårn och Magasinet. Här samlas man på morgonen, läser anslagen och startar det mesta som händer på ön. Platshållartext - byt mot riktig.",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       "link": {
         "label": "Läs mer om Tunet",
         "href": "#"
@@ -39,7 +39,7 @@
       "title": "Djuphamn",
       "place": "Djuphamn",
       "coords": "60°15,59'N 18°41,44'E",
-      "text": "Vässarös hamn. Här lägger Tärnan, Måsen och Grisslan till, och här väntar traktorn som kör den tyngre packningen vidare. Platshållartext - byt mot riktig.",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       "link": {
         "label": "Så tar du dig hit",
         "href": "#"
