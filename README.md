@@ -99,6 +99,7 @@ Djupsiffrorna är påhittade. De räknas från avståndet till land (`map.depthC
 ```
 index.html            markup (samma som WordPress ska rendera)
 css/style.css         stil, färger överst
+css/reduced-motion.css stil för reducerad rörelse
 data/tour.json        innehåll: stopp, texter, boomerang
 data/vassaro-map.json kartdata (ODbL)
 js/settings.js        alla justerbara värden
@@ -112,6 +113,8 @@ js/clouds.js          molnen
 js/trail.js           streckade spåret
 js/overlay.js         kort, pinnar, platslista, intro, outro
 js/tools.js           ?edit och ?tune
+js/reduced.js         reducerad rörelse: stillbilder i stället för kamerafärd
+js/crossfade.js       övertoning mellan stillbilderna
 js/util.js            hjälpfunktioner
 assets/boomerang.glb  placeholder
 vendor/three.js       three.js r187 + GLTFLoader

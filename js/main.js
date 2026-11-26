@@ -3,7 +3,7 @@
 import * as THREE from '../vendor/three.js';
 import { SETTINGS } from './settings.js';
 import { clamp, lerp } from './util.js';
-import { buildTimeline, locate, anchors } from './timeline.js';
+import { buildTimeline, anchors } from './timeline.js';
 import { buildRoadGraph, planRoute, gentleFlight } from './route.js';
 import { drawChart, buildMap } from './chart.js';
 import { loadBoomerang } from './boomerang.js';
@@ -11,6 +11,8 @@ import { buildClouds } from './clouds.js';
 import { buildTrail } from './trail.js';
 import { createPoses } from './poses.js';
 import { createOverlay } from './overlay.js';
+import { createCrossfade } from './crossfade.js';
+import { createReduced } from './reduced.js';
 import { setupEdit, setupTune } from './tools.js';
 
 const root = document.querySelector('[data-vassaro-tour]');
@@ -121,8 +123,12 @@ async function init() {
   // Kritiskt dämpad fjäder mot scrollen, så bilden inte skjuter förbi.
   const spring = { x: scrollU(), v: 0 };
   const lastBoom = new THREE.Vector3();
-  let angle = 0, spinSpeed = 0, speed = 0, time = 0, last = performance.now(), visible = true, fadeTo = null;
+  let angle = 0, spinSpeed = 0, speed = 0, time = 0, last = performance.now(), visible = true;
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(root);
+
+  // Reducerad rörelse: stillbilder med övertoning i stället för kamerafärder (se reduced.js)
+  const reduced = createReduced(tl, createCrossfade(renderer.domElement));
+  const renderShown = () => renderer.render(scene, camera); // scenen står kvar som i förra bildrutan
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -130,7 +136,7 @@ async function init() {
     last = now; time += dt;
     if (!visible) return;
     const reduce = reducedMotion.matches;
-    const u = reduce ? reducedU(scrollU()) : followScroll(scrollU(), dt);
+    const u = reduce ? reducedU(scrollU(), dt) : followScroll(scrollU(), dt);
 
     const { seg, t } = poses.compute(u);
     camera.position.copy(pose.pos);
@@ -150,7 +156,7 @@ async function init() {
     const floating = seg.type === 'hero' || seg.type === 'end';
     boomerang.pivot.position.copy(pose.boom);
     if (floating && !reduce) boomerang.pivot.position.y += Math.sin(time * 1.3) * SETTINGS.boomerang.heroFloat;
-    boomerang.pivot.scale.setScalar(pose.scale * Math.min(1, 0.85 + time * 0.6)); // liten entré när sidan laddat
+    boomerang.pivot.scale.setScalar(pose.scale * (reduce ? 1 : Math.min(1, 0.85 + time * 0.6))); // liten entré när sidan laddat
     boomerang.tilt.rotation.set(pose.tilt, 0, pose.bank);
     boomerang.spin.rotation.y = -angle;
     sun.position.copy(pose.boom).add(new THREE.Vector3(1.6, 6, 2.2));
@@ -161,7 +167,8 @@ async function init() {
     clouds.update(pose.cloudsOpen, camera);
 
     // kartan (pinnar, lista) tonas in under slutet av dyket och ut på väg tillbaka
-    const mapVisible = floating ? 0 : seg.type === 'flight' && seg.from < 0 ? clamp((t - 0.55) / 0.2) : seg.type === 'return' ? clamp(1 - t / 0.3) : 1;
+    let mapVisible = floating ? 0 : seg.type === 'flight' && seg.from < 0 ? clamp((t - 0.55) / 0.2) : seg.type === 'return' ? clamp(1 - t / 0.3) : 1;
+    if (reduce) mapVisible *= reduced.overlayIn; // pinnarna tonas in med den nya stillbilden
     overlay.update({ camera, seg, t, u, dt, reduce, W: stage.clientWidth, H: stage.clientHeight, mapVisible });
 
     renderer.render(scene, camera);
@@ -177,21 +184,10 @@ async function init() {
     return spring.x;
   }
 
-  // Reducerad rörelse: hoppa mellan fasta vyer (hero, stopp, slut) med kort övertoning
-  let shownU = null;
-  function reducedU(goal) {
+  // Fjädern hålls i fas med scrollen, så det inte blir ett ryck om reducerad rörelse slås av
+  function reducedU(goal, dt) {
     spring.x = goal; spring.v = 0;
-    const { seg, t } = locate(tl, goal);
-    const i = tl.segs.indexOf(seg);
-    const view = seg.type === 'flight' || seg.type === 'return' ? tl.segs[t < 0.5 ? i - 1 : i + 1] : seg;
-    const want = view.start + view.len / 2;
-    if (shownU === null) shownU = want;
-    if (want !== shownU && fadeTo === null) {
-      fadeTo = want;
-      stage.classList.add('is-fading');
-      setTimeout(() => { shownU = fadeTo; fadeTo = null; stage.classList.remove('is-fading'); }, 160);
-    }
-    return shownU;
+    return reduced.frameU(goal, dt, renderShown);
   }
 
   root.classList.add('is-ready');

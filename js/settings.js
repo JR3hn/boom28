@@ -16,7 +16,7 @@ export const SETTINGS = {
     legBase: 0.3,
     legPerUnit: 0.65,
     legMin: 1.3,
-    return: 1.8,        // tillbakaflygningen upp till himlen på slutet
+    return: 2.6,        // tillbakaflygningen norrut upp till himlen på slutet
     end: 0.9,           // slutbilden ("Den kommer alltid tillbaka.")
     smoothing: 0.55,    // sekunder, hur mjukt bilden följer scrollen (lägre = mer direkt)
     snapToStops: true,  // snäpp mjukt till stoppen när man slutar skrolla
@@ -37,6 +37,17 @@ export const SETTINGS = {
     ],
     // punkt strax före första stoppet [öster, höjd, söder], ger bågen in
     diveApproach: [0.45, 0.7, 2.4],
+    // Tillbakaflygningen: spegelbild av inflygningen, fortsätter norrut och båge upp i himlen.
+    // punkt strax efter sista stoppet [öster, höjd, söder], ger bågen ut
+    returnDepart: [0.1, 0.7, -2.4],
+    // Bana [x, höjd, z] upp i himlen norr om ön. Sista punkten = där boomerangen svävar på slutet.
+    returnPath: [
+      [-0.5, 1.0, -5.0],
+      [-0.55, 1.9, -7.2],
+      [-0.45, 3.6, -9.4],
+      [-0.25, 5.4, -11.3],
+      [0, 7, -13],
+    ],
   },
 
   // ---------------------------------------------------------------- KAMERA
@@ -55,7 +66,14 @@ export const SETTINGS = {
     chaseMobile: { back: 1.55, up: 0.65, ahead: 0.8, sway: 0.3,  bob: 0.08 },
     // Samma sak under inflygningen genom molnen
     dive:        { back: 1.7,  up: 0.5,  ahead: 1.2, sway: 0.55, bob: 0.1 },
+    // Samma sak under tillbakaflygningen upp mot himlen
+    climb:       { back: 1.7,  up: 0.5,  ahead: 1.2, sway: 0.55, bob: 0.1 },
     bank: 0.35,         // max lutning i kurvor (radianer)
+    // Hur långsamt kameran zoomar ut från / in till ett stopp, i skärmhöjder scroll.
+    // Gäller bara kameran: boomerangen lyfter och landar vid samma tidpunkt oavsett.
+    // Högre = mjukare zoom. Tas aldrig mer än halva sträckan.
+    // skyOut/skyIn = samma sak när boomerangen lämnar himlen (startsidan) och kommer tillbaka dit på slutet.
+    zoom: { out: 0.65, in: 0.65, skyOut: 1.1, skyIn: 1.0 },
   },
 
   // ---------------------------------------------------------------- BOOMERANG
@@ -114,6 +132,19 @@ export const SETTINGS = {
     labelSize: { water: 30, islet: 22, sounding: 26 }, // textstorlek på sjökortet (px i texturen)
     compass: [6.5, 9.2],  // kompassrosens position [x, z]
     roadWidth: 0.016, pathWidth: 0.006,
+  },
+
+  // ---------------------------------------------------------------- REDUCERAD RÖRELSE
+  // När besökaren valt "minska rörelse" visas turen som stillbilder med övertoning
+  // i stället för kamerafärder. Logiken finns i reduced.js och crossfade.js.
+  reduced: {
+    fade: 0.45,          // sekunder, övertoningen mellan två stillbilder
+    settle: 0.12,        // sekunder, scrollen ska vila så här länge innan bilden byts (snabb scroll = en enda övertoning)
+    flightFrames: true,  // en stillbild för varje flygning (false = bara startsida, stopp och slut)
+    // Var i segmentet stillbilden tas (0–1)
+    flightAt: 0.5,       // mellan två stopp: boomerangen i luften, spåret halvritat
+    diveAt: 0.8,         // inflygningen: över vattnet med ön i bild
+    returnAt: 0.3,       // tillbakaflygningen: på väg ut från sista stoppet
   },
 
   // ---------------------------------------------------------------- UTSEENDE

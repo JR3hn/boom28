@@ -31,6 +31,10 @@ const TUNE = [
   ['Kamera: sidbyte (hur långt åt sidan)', 'camera.chase', 'sway', 0, 1.2, 0.05],
   ['Kamera: avstånd bakom', 'camera.chase', 'back', 0.5, 3, 0.05],
   ['Kamera: höjd över boomerangen', 'camera.chase', 'up', 0.1, 1.5, 0.05],
+  ['Kamera: zoom ut från stopp (skärmhöjder)', 'camera.zoom', 'out', 0.1, 1.5, 0.05],
+  ['Kamera: zoom in till stopp (skärmhöjder)', 'camera.zoom', 'in', 0.1, 1.5, 0.05],
+  ['Kamera: vändning från himlen (skärmhöjder)', 'camera.zoom', 'skyOut', 0.1, 1.6, 0.05],
+  ['Kamera: vändning upp till himlen (skärmhöjder)', 'camera.zoom', 'skyIn', 0.1, 1.3, 0.05],
   ['Inflygning: sidbyte', 'camera.dive', 'sway', 0, 1.5, 0.05],
   ['Inflygning: avstånd bakom', 'camera.dive', 'back', 0.5, 3, 0.05],
 ];

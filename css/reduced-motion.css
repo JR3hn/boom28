@@ -1,0 +1,25 @@
+/* Reducerad rörelse (prefers-reduced-motion: reduce).
+   Turen visas som stillbilder med övertoning: js/reduced.js + js/crossfade.js.
+   Värden för tider ligger i SETTINGS.reduced. Här finns bara det som är CSS.
+   Princip: ingenting flyttar sig eller växer. Bara opacity ändras. */
+
+/* Kopian av förra stillbilden, som tonas ut ovanpå den nya (skapas av crossfade.js).
+   Den ligger under overlay, så kort, lista och kredit aldrig blinkar. */
+.tour__stage .tour__snapshot {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; pointer-events: none;
+  opacity: 0;
+  transition: none; /* opaciteten styrs bildruta för bildruta från JS */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Snäppningen scrollar mjukt av sig själv. Det är rörelse som besökaren inte själv styr. */
+  html { scroll-snap-type: none; }
+
+  /* Scroll-hinten: en stilla linje i stället för en som växer i en loop */
+  .tour__hint::after { animation: none; }
+
+  /* Hint och outro byter läge i ett steg när stillbilden byts. Tona i stället för att poppa. */
+  .tour__hint { transition: opacity .4s ease; }
+  .tour__outro { transition: opacity .45s ease, visibility .45s; }
+}

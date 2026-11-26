@@ -74,7 +74,10 @@ export function createOverlay(root, tour, stops, anchorList, scrollToU) {
     update({ camera, seg, t, u, dt, reduce, W, H, mapVisible }) {
       const narrow = W < 640;
       items.forEach((it, i) => {
-        it.vis += (cardTarget(i, seg, t) - it.vis) * (reduce ? 1 : 1 - Math.exp(-dt * C.speed));
+        // reducerad rörelse: kortet tonas in i takt med den nya stillbilden (mapVisible), och växer inte
+        const goal = cardTarget(i, seg, t) * (reduce ? mapVisible : 1);
+        it.vis += (goal - it.vis) * (1 - Math.exp(-dt * C.speed));
+        const grow = reduce ? 1 : it.vis; // 1 = full storlek direkt, bara opacity ändras
         if (it.vis < 0.002) it.vis = 0;
 
         // pinnens huvud och fot på skärmen (foten i samma höjd som ringen på marken)
@@ -87,7 +90,7 @@ export function createOverlay(root, tour, stops, anchorList, scrollToU) {
         const opacity = onScreen ? mapVisible : 0;
 
         it.pin.style.opacity = it.line.style.opacity = opacity;
-        it.pin.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(${1 + 0.3 * it.vis})`;
+        it.pin.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(${1 + 0.3 * (reduce ? 0 : it.vis)})`;
         it.pin.classList.toggle('is-active', it.vis > 0.5);
         it.line.setAttribute('x1', sx); it.line.setAttribute('y1', sy);
         it.line.setAttribute('x2', fx); it.line.setAttribute('y2', fy);
@@ -112,7 +115,7 @@ export function createOverlay(root, tour, stops, anchorList, scrollToU) {
           ox = right ? 0 : it.w; oy = clamp(sy - cy, 0, it.h);
         }
         card.style.transformOrigin = `${ox}px ${oy}px`;
-        card.style.transform = `translate3d(${cx}px, ${cy}px, 0) scale(${0.82 + 0.18 * it.vis})`;
+        card.style.transform = `translate3d(${cx}px, ${cy}px, 0) scale(${0.82 + 0.18 * grow})`;
         card.style.opacity = it.vis;
       });
 

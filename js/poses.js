@@ -4,7 +4,7 @@
 //  dyk:      ner genom molnen söder om ön, över vattnet, båge in till första stoppet
 //  stopp:    kameran snett ovanför pinnen, boomerangen bredvid
 //  sträcka:  nästan rak flygning till nästa stopp, kameran bakom
-//  tillbaka: båge upp i himlen igen
+//  tillbaka: båge ut, vidare norrut och upp i himlen (dyket baklänges)
 import * as THREE from '../vendor/three.js';
 import { SETTINGS } from './settings.js';
 import { clamp, lerp, ease, soft, DEG, UP, vec } from './util.js';
@@ -22,6 +22,9 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
     return { pos: pos.multiplyScalar(D).add(T), look: T.clone() };
   }
   const heroView = () => ({ ...orbit(HERO), boom: HERO.T.clone(), ...HERO });
+  // Slutbilden: samma inramning som startsidan, men i himlen norr om ön (kameran bakom, tittar norrut)
+  const RP = SETTINGS.flight.returnPath, END = { ...HERO, T: vec(RP[RP.length - 1]) };
+  const endView = () => ({ ...orbit(END), boom: END.T.clone(), ...END });
 
   // Stoppvyn tittar åt samma håll som man kom in från, om inte camera.yaw finns i tour.json
   const facing = tan => Math.atan2(-tan.x, -tan.z);
@@ -55,6 +58,17 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
     return (dive = new THREE.CatmullRomCurve3(pts, false, 'centripetal'));
   }
 
+  // ------------------------------------------------ tillbakaflygningens bana
+  // Som dyket baklänges: båge ut från sista stoppet, vidare norrut och upp i himlen
+  let climb = null, climbFor = null;
+  function climbPath() {
+    if (climb && climbFor === isPortrait()) return climb;
+    const last = stops.length - 1, [x, z] = stops[last].position, [ax, ay, az] = SETTINGS.flight.returnDepart;
+    const pts = [stopView(last).boom, new THREE.Vector3(x + ax, LAND + ay, z + az), ...RP.map(vec)];
+    climbFor = isPortrait();
+    return (climb = new THREE.CatmullRomCurve3(pts, false, 'centripetal'));
+  }
+
   // ------------------------------------------------ drönarkameran
   // Bakom boomerangen vid s (0..1) längs kurvan. `side` = sidan kameran börjar på (+1/−1).
   // Byter sida en gång per sträcka. Fler byten blir rörigt.
@@ -75,22 +89,14 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
     return { pos, look, boom: p, bank };
   }
 
-  // Båge genom luften (för tillbakaflygningen)
-  function arc(A, Bp, t) {
-    const d = A.distanceTo(Bp);
-    const C = A.clone().lerp(Bp, 0.5).add(new THREE.Vector3(Bp.z - A.z, 0, A.x - Bp.x).normalize().multiplyScalar(0.3 * d + 0.3));
-    C.y = Math.max(A.y, Bp.y) + 0.2 * d + 0.4;
-    return new THREE.QuadraticBezierCurve3(A, C, Bp).getPoint(t);
-  }
-  function orbitBetween(a, b, e) {
-    const dy = Math.atan2(Math.sin(b.yaw - a.yaw), Math.cos(b.yaw - a.yaw)); // kortaste vägen runt
-    return orbit({ T: a.T.clone().lerp(b.T, e), D: lerp(a.D, b.D, e), pitch: lerp(a.pitch, b.pitch, e), yaw: a.yaw + dy * e });
-  }
-
   // ------------------------------------------------ pose för en scroll-position u
   const pose = { pos: new THREE.Vector3(), look: new THREE.Vector3(), boom: new THREE.Vector3(), scale: 1, tilt: 0, bank: 0, cloudsOpen: 0, leg: -1, legS: 0, legBlend: 0 };
   const set = v => { pose.pos.copy(v.pos); pose.look.copy(v.look); pose.boom.copy(v.boom); };
-  const blend = (v, e) => { pose.pos.lerp(v.pos, e); pose.look.lerp(v.look, e); pose.boom.lerp(v.boom, e); };
+  // eCam styr kameran, eBoom boomerangen. Då kan kameran zooma långsammare utan att boomerangen flyttar sig senare.
+  const blend = (v, eCam, eBoom = eCam) => { pose.pos.lerp(v.pos, eCam); pose.look.lerp(v.look, eCam); pose.boom.lerp(v.boom, eBoom); };
+  // Kamerans övergång i början / slutet av ett segment: längd i skärmhöjder, högst halva segmentet
+  const zoomOut = (seg, t, len = CAM.zoom.out) => ease(clamp(t / Math.min(0.5, len / seg.len)));
+  const zoomIn = (seg, t, len = CAM.zoom.in) => ease(clamp(1 - (1 - t) / Math.min(0.5, len / seg.len)));
   const firstHold = tl.segs.find(s => s.type === 'hold');
 
   function compute(u) {
@@ -98,7 +104,7 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
     Object.assign(pose, { bank: 0, leg: -1, legBlend: 0, cloudsOpen: u >= firstHold.start ? 1 : 0 });
 
     if (seg.type === 'hero' || seg.type === 'end') {
-      set(heroView());
+      set(seg.type === 'hero' ? heroView() : endView());
       Object.assign(pose, { scale: B.scale.hero, tilt: B.tilt.hero });
 
     } else if (seg.type === 'hold') {
@@ -109,7 +115,7 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
       const s = soft(clamp((t - 0.03) / 0.88));
       const drone = droneView(divePath(), s, CAM.dive, false, 1);
       const start = ease(clamp(t / 0.14)), land = ease(clamp((t - 0.86) / 0.14));
-      set(heroView()); blend(drone, start); blend(stopView(0), land);
+      set(heroView()); blend(drone, zoomOut(seg, t, CAM.zoom.skyOut), start); blend(stopView(0), zoomIn(seg, t), land);
       pose.scale = lerp(lerp(B.scale.hero, B.scale.flying, ease(clamp(s / 0.45))), B.scale.stop, land);
       pose.tilt = lerp(lerp(B.tilt.hero, B.tilt.diving, ease(clamp(s / 0.3))), B.tilt.stop, land);
       pose.bank = drone.bank * start * (1 - land);
@@ -120,21 +126,20 @@ export function createPoses({ stops, flights, tl, isPortrait }) {
       const f = isPortrait() ? CAM.chaseMobile : CAM.chase;
       const drone = droneView(flights[seg.to], s, f, true, seg.to % 2 ? -1 : 1); // varannan sträcka börjar på andra sidan
       const lift = ease(clamp(t / 0.18)), land = ease(clamp((t - 0.82) / 0.18));
-      set(stopView(seg.from)); blend(drone, lift); blend(stopView(seg.to), land);
+      set(stopView(seg.from)); blend(drone, zoomOut(seg, t), lift); blend(stopView(seg.to), zoomIn(seg, t), land);
       pose.scale = lerp(lerp(B.scale.stop, B.scale.flying, lift), B.scale.stop, land);
       pose.tilt = lerp(lerp(B.tilt.stop, B.tilt.flying, lift), B.tilt.stop, land);
       pose.bank = drone.bank * lift * (1 - land);
       Object.assign(pose, { leg: seg.to, legS: s, legBlend: lift * (1 - land) });
 
-    } else { // tillbaka upp i himlen
-      const a = stopView(seg.from), b = heroView(), e = ease(t), up = Math.sin(Math.PI * t);
-      const cam = orbitBetween(a, b, e);
-      pose.boom.copy(arc(a.boom, b.boom, e));
-      pose.look.copy(cam.look).lerp(pose.boom, 0.55 * up);
-      pose.pos.copy(cam.pos).addScaledVector(cam.pos.clone().sub(pose.look).normalize(), 2 * up);
-      pose.scale = lerp(B.scale.stop, B.scale.hero, e) * (1 + 0.15 * up);
-      pose.tilt = lerp(B.tilt.stop, B.tilt.hero, e);
-      pose.bank = 0.5 * up;
+    } else { // tillbaka: norrut och upp i himlen (dyket baklänges)
+      const s = soft(clamp((t - 0.09) / 0.88));
+      const drone = droneView(climbPath(), s, CAM.climb, false, -1);
+      const lift = ease(clamp(t / 0.14)), arrive = ease(clamp((t - 0.86) / 0.14));
+      set(stopView(seg.from)); blend(drone, zoomOut(seg, t), lift); blend(endView(), zoomIn(seg, t, CAM.zoom.skyIn), arrive);
+      pose.scale = lerp(lerp(B.scale.stop, B.scale.flying, lift), B.scale.hero, ease(clamp((s - 0.55) / 0.45)));
+      pose.tilt = lerp(lerp(B.tilt.stop, B.tilt.diving, lift), B.tilt.hero, ease(clamp((s - 0.7) / 0.3)));
+      pose.bank = drone.bank * lift * (1 - arrive);
     }
     return { seg, t };
   }
